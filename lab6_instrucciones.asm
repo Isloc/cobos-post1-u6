@@ -95,4 +95,22 @@ inicio:
     loop .bucle_suma        ; CX--; si CX != 0 repite
     ; Al terminar: AX = 1+2+3+4+5 = 15
 
+; -- BLOQUE 5: Rotacion - ROL/ROR frente a SHL/SHR ------------------------
+    mov  al, 81h            ; AL = 1000 0001b (bits 7 y 0 en 1)
+
+    mov  bl, al             ; BL = 81h
+    shl  bl, 1              ; BL = 02h, CF = 1 (el bit 7 se pierde)
+
+    mov  cl, al             ; CL = 81h
+    rol  cl, 1              ; CL = 03h, CF = 1 (el bit 7 reaparece en el bit 0)
+
+    mov  dl, al             ; DL = 81h
+    shr  dl, 1              ; DL = 40h, CF = 1 (el bit 0 se pierde)
+
+    mov  bh, al             ; BH = 81h
+    ror  bh, 1              ; BH = C0h, CF = 1 (el bit 0 reaparece como bit 7)
+
+    mov  al, 0A5h           ; AL = 1010 0101b (nibble alto A, nibble bajo 5)
+    rol  al, 4              ; AL = 5Ah (nibbles intercambiados)
+
     int  20h                ; retornar a DOS
