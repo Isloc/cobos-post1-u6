@@ -14,6 +14,10 @@ promedio dw  0
 
 var_x    dw  0FFFFh                 ; variable simple para direccionamiento directo
 
+matriz   dw  1, 2, 3                ; matriz 3x3 de enteros de 16 bits
+         dw  4, 5, 6
+         dw  7, 8, 9
+
 inicio:
 
 ; -- MODO 1: INMEDIATO ----------------------------------------------------
@@ -56,5 +60,33 @@ inicio:
     mov  ax, [bx]           ; AX = nota1 = 85 (desplazamiento 0)
     mov  cx, [bx + 2]       ; CX = nota2 = 73 (desplazamiento 2)
     mov  dx, [bx + 4]       ; DX = promedio = 79 (desplazamiento 4)
+
+; -- MODO 3b: INDIRECTO POR BP - marco de variables locales ---------------
+    push bp                 ; preservar el BP del programa principal
+    mov  bp, sp             ; BP = SP: base del nuevo marco de pila
+    sub  sp, 4              ; reservar 4 bytes para dos variables locales
+
+    mov  word [bp - 2], 99  ; local_1 = 99
+    mov  word [bp - 4], 250 ; local_2 = 250
+
+    mov  ax, [bp - 2]       ; AX <- local_1 = 99
+    add  ax, [bp - 4]       ; AX += local_2 = 349 = 015Dh
+
+    mov  sp, bp             ; liberar las variables locales
+    pop  bp                 ; restaurar el BP del programa principal
+
+; -- ACCESO A MATRIZ: doble indexacion (fila, columna) --------------------
+    mov  ax, 1              ; AX = fila = 1
+    mov  bx, 3              ; BX = elementos por fila
+    mul  bx                 ; AX = 1 * 3 = 3 elementos
+    shl  ax, 1              ; AX = 6 bytes (desplazamiento de fila)
+    mov  si, ax             ; SI = desplazamiento de fila
+
+    mov  cx, 2              ; CX = columna = 2
+    shl  cx, 1              ; CX = 4 bytes (desplazamiento de columna)
+    add  si, cx             ; SI = 10 (desplazamiento total)
+
+    mov  bx, matriz         ; BX = direccion base de la matriz
+    mov  dx, [bx + si]      ; DX <- matriz[1][2] = 6
 
     int  20h                ; retornar a DOS
